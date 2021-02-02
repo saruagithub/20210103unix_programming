@@ -22,16 +22,21 @@ void do_add(int id) {
     while(1) {
         // lock
         pthread_mutex_lock(&share_memory->mutex);
-        if (share_memory->now > 1000) {
-            pthread_mutex_unlock(&share_memory->mutex);
-            break;
+        pthread_cond_wait(&share_memory->cond, &share_memory->mutex);
+        int flag;
+        for(int i = 0; i < 100; i++) {
+            if (share_memory->now > 1000) {
+                pthread_mutex_unlock(&share_memory->mutex);
+                exit(0);
+            }
+            share_memory->sum += share_memory->now;
+            share_memory->now++;
+            printf("the %dth child do add, now = %d, sum = %d\n", id, share_memory->now, share_memory->sum);
+            fflush(stdout);
+            // usleep(100); 
         }
-        share_memory->sum += share_memory->now;
-        share_memory->now++;
         pthread_mutex_unlock(&share_memory->mutex);
-        printf("the %dth child do add, now = %d, sum = %d\n", id, share_memory->now, share_memory->sum);
-        //fflush(stdout);
-        // usleep(100);
+        pthread_cond_signal(&share_memory->cond);
     }
     exit(0);
 }
@@ -81,6 +86,7 @@ int main() {
         // add 1-100 by child
         do_add(x);
     } else {
+        pthread_cond_signal(&share_memory->cond);
         for(int i = 1; i <= INS; i++) {
             wait(NULL);
         }
