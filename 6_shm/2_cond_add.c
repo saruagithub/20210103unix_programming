@@ -23,7 +23,7 @@ void do_add(int id) {
         // lock
         pthread_mutex_lock(&share_memory->mutex);
         pthread_cond_wait(&share_memory->cond, &share_memory->mutex);
-        int flag;
+        int flag = 0;
         for(int i = 0; i < 100; i++) {
             if (share_memory->now > 1000) {
                 pthread_mutex_unlock(&share_memory->mutex);
@@ -86,6 +86,7 @@ int main() {
         // add 1-100 by child
         do_add(x);
     } else {
+        sleep(1);
         pthread_cond_signal(&share_memory->cond);
         for(int i = 1; i <= INS; i++) {
             wait(NULL);
@@ -93,5 +94,6 @@ int main() {
     }
     printf("share_memory->sum = %d\n", share_memory->sum);
     shmdt(share_memory);
+    shmctl(shmid, IPC_RMID, NULL);
     return 0;
 }
