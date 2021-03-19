@@ -6,7 +6,7 @@
  ************************************************************************/
 
 #include "head.h"
-#include <chat.h>
+#include "chat.h"
 
 // create the shared memory, and prepare resources for char room
 
