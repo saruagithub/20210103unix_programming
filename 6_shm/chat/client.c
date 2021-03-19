@@ -39,7 +39,13 @@ int main(int argc, char **argv) {
         scanf("%[^\n]s", msg);
         getchar(); // eath \n
         if (!strlen(msg)) continue;
-        pthread_mutex_lock(&share_memory->mutex);
+        while(1) {
+            if (!strlen(share_memory->msg)) {
+                pthread_mutex_lock(&share_memory->mutex);
+                break;
+            }
+        }
+        //pthread_mutex_lock(&share_memory->mutex);
         printf("Sending %s ...", share_memory->msg);
         strcpy(share_memory->msg, msg);
         strcpy(share_memory->name, name);
