@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    key_t key = ftok(".", 202101);
+    key_t key = ftok(".", 202103);
     if ((shmid = shmget(key, sizeof(struct Msg), IPC_CREAT | 0666)) < 0) {
         perror("shmget error");
         exit(1);
@@ -38,6 +38,7 @@ int main(int argc, char **argv) {
         char msg[1024] = {0};
         scanf("%[^\n]s", msg);
         getchar(); // eath \n
+        printf("msg is %s\n", msg);
         if (!strlen(msg)) continue;
         while(1) {
             if (!strlen(share_memory->msg)) {
@@ -46,12 +47,12 @@ int main(int argc, char **argv) {
             }
         }
         //pthread_mutex_lock(&share_memory->mutex);
-        printf("Sending %s ...", share_memory->msg);
+        printf("Sending: %s ...\n", msg);
         strcpy(share_memory->msg, msg);
         strcpy(share_memory->name, name);
         pthread_cond_signal(&share_memory->cond);
         pthread_mutex_unlock(&share_memory->mutex);
-        printf("Client signaled the cond");
+        printf("Client signaled the cond\n");
     }
     return 0;
 }
