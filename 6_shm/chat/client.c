@@ -32,12 +32,12 @@ int main(int argc, char **argv) {
     if ((share_memory = shmat(shmid, NULL, 0)) < 0) {
         perror("shmat error");
         exit(1);
-    }
+    } // client get the share memory now
 
     while(1) {
         char msg[1024] = {0};
         scanf("%[^\n]s", msg);
-        getchar(); // eath \n
+        getchar(); // eat \n
         printf("msg is %s\n", msg);
         if (!strlen(msg)) continue;
         while(1) {
