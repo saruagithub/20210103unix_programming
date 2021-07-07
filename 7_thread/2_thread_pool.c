@@ -19,6 +19,7 @@ void task_queue_init(struct task_queue *taskQueue, int size) {
 }
 
 void task_queue_push(struct task_queue *taskQueue, char *str){
+    // when push str, nobody can acquire
     pthread_mutex_lock(&taskQueue->mutex);
     // queue is full
     if (taskQueue->total == taskQueue->size) {
@@ -43,7 +44,7 @@ char *task_queue_pop(struct task_queue *taskQueue) {
     pthread_mutex_lock(&taskQueue->mutex);
     while (taskQueue->total == 0) {
         printf("task queue is empty\n");
-        // enter the customer room, but nobody
+        // worker enter the customer room, but nobody, good way is to wait
         pthread_cond_wait(&taskQueue->cond, &taskQueue->mutex);
     }
     char *str = taskQueue->data[taskQueue->head];

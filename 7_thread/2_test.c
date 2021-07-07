@@ -13,10 +13,11 @@
 
 void *do_work(void *arg) {
     pthread_detach(pthread_self());
-    // detach my from other pthread (other girlfriend)
+    //分离 detach my from other pthread (other girlfriend)
     struct task_queue *taskQueue = (struct task_queue *)arg;
     while(1) {
         char *str = task_queue_pop(taskQueue);
+        // pthread_self get my pthread id
         printf("<%d>: %s \n", pthread_self(), str);
     }
 }
@@ -30,6 +31,7 @@ int main() {
 
     // create pthread
     for (int i = 0; i < THREAD; i++) {
+        // all is goto the taskQueue to get customer
         pthread_create(&tid[i], NULL, do_work, (void *)&taskQueue);
     }
 
@@ -46,13 +48,14 @@ int main() {
             task_queue_push(&taskQueue, buff[sub]);
             if (sub == QUEUE) {
                 sub = 0;
+                // if Queue is full, read data from the beginning
             }
             // customers are full, just waiting
             if (taskQueue.total == taskQueue.size) {
                 while(1) {
                     // pthread is go out
                     if (taskQueue.total < taskQueue.size) break;
-                    usleep(10000);
+                    usleep(10000); // void cpu do while
                 }
             }
         }
