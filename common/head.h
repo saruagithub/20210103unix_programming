@@ -28,5 +28,12 @@
 //mutex
 #include <pthread.h>
 
+//socket
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include "common.h"
+#include "tcp_server.h"
+#include "tcp_client.h"
 #endif
