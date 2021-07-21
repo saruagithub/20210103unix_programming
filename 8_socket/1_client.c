@@ -27,6 +27,10 @@ int main(int argc, char **argv) {
         getchar();
         if (!strlen(buff)) continue;
         send(sockfd, buff, strlen(buff), 0); 
+        // empty the buff
+        bzero(buff, sizeof(buff));
+        recv(sockfd, buff, sizeof(buff), 0);
+        printf("Server: %s\n", buff);
         bzero(buff, sizeof(buff));
     }
 }

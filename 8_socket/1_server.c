@@ -19,17 +19,40 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    //while(1) {
-    if ((sockfd = accept(server_listen, NULL, NULL)) < 0) {
-        perror("accept error");
-        exit(1);
-    }
-    printf("something is online \n");
-    // 不停收信息，不然一次连接只收到一条
+    struct sockaddr_in client;
+    socklen_t len = sizeof(client);
     while(1) {
-        char buff[512] = {0};
-        recv(sockfd, buff, sizeof(buff), 0);
-        printf("recv: %s\n", buff);
+        if ((sockfd = accept(server_listen, (struct sockaddr_in *)&client, &len)) < 0) {
+            perror("accept error");
+            exit(1);
+        }
+        // after three hands
+        printf("<%s> is online \n", inet_ntoa(client.sin_addr));
+        pid_t pid;
+        if ((pid = fork()) < 0) {
+            exit(1);
+        }
+        //  always get the messages
+        if (pid == 0) {
+            close(server_listen);
+            while(1) {
+                char buff[512] = {0};
+                char tobuff[1024] = {0};
+                size_t ret = recv(sockfd, buff, sizeof(buff), 0);
+                if (ret <= 0) {
+                    printf("<%s> is offline!\n", inet_ntoa(client.sin_addr));
+                    close(sockfd);
+                    exit(1); //child exit
+                }
+                printf("<%s> recv: %s\n",inet_ntoa(client.sin_addr), buff);
+                // reply the message
+                sprintf(tobuff, "I've received your message %s \n", buff);
+                send(sockfd, tobuff, strlen(tobuff), 0);
+            }
+        } else {
+            printf("Parent do noting\n");
+            close(sockfd);
+            // same sockfd with child, the influence ??
+        }
     }
-    //}
 }
