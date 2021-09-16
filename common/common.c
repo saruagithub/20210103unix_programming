@@ -25,3 +25,30 @@ int make_block(int fd) {
     flag &= ~O_NONBLOCK;
     fcntl(fd, F_SETFL, flag);
 }
+
+int recv_str_nonblock(int sockfd, char *buff, long size, int timeout) {
+    // receive name to put into buff, by select
+    fd_set rfds; //read fd
+    struct timeval tv;
+    int retval;
+
+    //empty
+    FD_ZERO(&rfds);
+    //add fd
+    FD_SET(sockfd, &rfds);
+    tv.tv_sec = 5;
+    tv.tv_usec = timeout;
+
+    // nfds: the highest-numbered file descriptor + 1
+    retval = select(sockfd+1, &rfds, NULL, NULL, &tv);
+    if (retval <= 0) {
+        return -1;
+    } else {
+        //recv data
+        int recvsize = recv(sockfd, buff, size, 0);
+        if (recvsize <= 0) {
+            return -1;
+        }
+    }
+    return 0;
+}

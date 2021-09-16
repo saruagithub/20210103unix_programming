@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
                     exit(1);
                 }
                 printf("LogIn %s login...\n", inet_ntoa(client.sin_addr));
-                make_nonblock(sockfd);
+                //make_nonblock(sockfd);
 
                 // get the login user Name?
                 if (recv_str_nonblock(sockfd, name, sizeof(name), 10000) != 0) {
@@ -69,6 +69,7 @@ int main(int argc, char **argv) {
                     close(sockfd);
                     continue;
                 }
+                //make_block(sockfd);
                 // send msg to client that you login successfully
                 send(sockfd, "welcome!", sizeof("welcome"), 0);
                 users[sockfd].fd = sockfd;
@@ -84,6 +85,7 @@ int main(int argc, char **argv) {
                 // user login from addr
                 printf("LogIn %s login on %s...\n",name, inet_ntoa(client.sin_addr));
             } else {
+                // main logic 
                 //do_use_fd(events[n].data.fd);
                 // char buff[1024] = {0}; 
                 // now client send the cmd flag
@@ -105,6 +107,7 @@ int main(int argc, char **argv) {
                     } else if (flag & RECV) {
                         printf("Client want to recv data...\n");
                     } else {
+                        // recv normal data
                         recv(fd, buff, sizeof(buff), 0);
                         printf("<%s>: %s\n", users[fd].name, buff);
                     }

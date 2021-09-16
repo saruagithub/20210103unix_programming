@@ -52,13 +52,14 @@ int main(int argc, char **argv) {
             printf("Here receive!\n");
         } else if (cmd[0] == 's' && cmd[1] == ' ') {
             flag |+ SEND;
+            send(sockfd, (char *)&flag, sizeof(int), 0);
             char file[512] = {0};
             strcpy(file, cmd + 2);
             printf("filename = %s\n", file);
-            // send pic to server, single link (not double link)
         } else {
             flag |= NORMAL;
             send(sockfd, (char *)&flag, sizeof(int), 0);
+            sleep(0.1); // for debug
             send(sockfd, cmd, strlen(cmd), 0);
         }
 
