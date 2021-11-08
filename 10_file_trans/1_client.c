@@ -14,6 +14,16 @@ void logout(int signum) {
     exit(0);
 }
 
+int get_name(char *path, char *name) {
+    char *ptr = strrchr(path, '/');
+    if (ptr == NULL) {
+        strcpy(name, path);
+        return 0;
+    }
+    strcpy(name, ptr + 1);
+    return 0;
+}
+
 int main(int argc, char **argv) {
     int sockfd, port;
     char buff[512] = {0}, ip[20] = {0}, name[20] = "xue";
@@ -49,13 +59,33 @@ int main(int argc, char **argv) {
         // s a.txt, recv-r
         if (strlen(cmd) == 1 && cmd[0] == 'r') {
             flag |= RECV;
+            send(sockfd, (char *)&flag, sizeof(int), 0);
             printf("Here receive!\n");
         } else if (cmd[0] == 's' && cmd[1] == ' ') {
-            flag |+ SEND;
-            send(sockfd, (char *)&flag, sizeof(int), 0);
-            char file[512] = {0};
+            flag |= SEND;
+            char file[512] = {0}, buffer[1024] = {0}, name[512] = {0};
             strcpy(file, cmd + 2);
+            send(sockfd, (char *)&flag, sizeof(int), 0);
+            // delete file path /, get real filename
+            // send(sockfd, (void *)&file, strlen(file), 0);
             printf("filename = %s\n", file);
+            // get the file size
+            FILE *fp = fopen(file, "r");
+            fseek(fp, 0, SEEK_END);
+            ssize_t size =  ftell(fp);
+            // send the file size, 同步
+            send(sockfd, (void *)&size, sizeof(size), 0);
+            get_name(file, name);
+            send(sockfd, (void *)&name, strlen(name), 0); // mind sticky package
+            fseek(fp, 0, SEEK_SET);
+            while(1) {
+                int rsize = fread(buff, 1, 1024, fp);
+                if (rsize <= 0) {
+                    printf("read finish success!\n");
+                    break;
+                }
+                send(sockfd, buffer, strlen(buffer), 0);
+            }
         } else {
             flag |= NORMAL;
             send(sockfd, (char *)&flag, sizeof(int), 0);

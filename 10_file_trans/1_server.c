@@ -103,7 +103,12 @@ int main(int argc, char **argv) {
                 } else {
                     if (flag & SEND) {
                         // client want to send
+                        char name[512] = {0};
                         printf("Client want to send data...\n");
+                        ssize_t size = 0;
+                        recv(fd, (void *)&size, sizeof(size), 0); 
+                        recv(fd, name, sizeof(name), 0);
+                        printf("filename = %s\n", name);
                     } else if (flag & RECV) {
                         printf("Client want to recv data...\n");
                     } else {
